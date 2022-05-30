@@ -7,7 +7,7 @@ library(sf)
 
 gh_data <- read.csv("https://raw.githubusercontent.com/globaldothealth/monkeypox/main/latest.csv")
 
-countries_sf <- read_sf("C:\\Users\\Cindy Pang\\monkeypox-mapped\\countries sf\\World_Countries__Generalized_.shp")
+countries_sf <- read_sf("C:\\Users\\Cindy Pang\\monkeypox-mapped\\shapefiles2\\ne_10m_admin_0_countries.shp")
 
 country_confirmed_case_dat <- gh_data %>%
   filter(Status == 'confirmed')%>%
