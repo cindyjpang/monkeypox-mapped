@@ -6,7 +6,8 @@ library(tidyr)
 library(sf)
 library(stats)
 library(zoo)
-gh_data <- read.csv("https://raw.githubusercontent.com/globaldothealth/monkeypox/main/latest.csv")
+library(httr)
+gh_data <- read.csv(text=content(GET("https://raw.githubusercontent.com/globaldothealth/monkeypox/main/latest.csv")))
 
 countries_sf <- read_sf("C:\\Users\\Cindy Pang\\monkeypox-mapped\\countries sf\\World_Countries__Generalized_.shp")
 world_pop <- read.csv("world_pop_2022.csv")%>%
