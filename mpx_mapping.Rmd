@@ -17,6 +17,7 @@ library(sf)
 library(stats)
 library(zoo)
 library(knitr)
+library(rmarkdown)
 
 
 today <- Sys.Date()
