@@ -1,0 +1,56 @@
+---
+title: "Monkeypox Global Mapping"
+author: "Cindy J. Pang"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(plyr)
+library(readr)
+library(dplyr)
+library(plotly)
+library(tidyr)
+library(sf)
+library(stats)
+library(zoo)
+library(knitr)
+
+today <- Sys.Date()
+
+mpx_country_case_dat <- read_csv("exported data/mpx_country_case_dat.csv")
+
+
+world_summary_tbl <- mpx_country_case_dat%>%
+  group_by(Country)%>%
+  filter(Date_confirmation == max(Date_confirmation, na.rm = TRUE))%>%
+ select(Country, Date_confirmation, cumulative_confirmed, cumulative_per_1M)%>%
+   arrange(desc(cumulative_per_1M))
+
+```
+
+This is a website for up-to-date reported cases and mapping of monkeypox globally. In the future, I hope to add hospitalizations, suspected cases, future forecasts of Monkeypox, and important infection parameters such as the basic reproductive number, R0. The goal of these mappings are to make the data understandable to a general audience and what it means for public health response (i.e. risk for a susceptible person)
+
+Website data is pulled from [Globe.Health](https://github.com/globaldothealth/monkeypox)
+
+This site is maintained by data janitorial enthusiast, Cindy J. Pang, who is also a rising Senior at the University of North Carolina at Chapel Hill, Gillings School of Chapel Hill studying Biostatistics and Mathematics. 
+
+## Cumulative Cases Table 
+
+Data updated 
+```{r world table, echo=FALSE}
+
+
+kable(world_summary_tbl, caption = "World Cumulative Cases Summary Table")
+
+```
+
+
+## Cumulative Cases Globally, Trendlines
+Here's we are as of "r today" 
+```{r pressure, echo=FALSE}
+
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.

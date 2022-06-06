@@ -72,4 +72,4 @@ country_daily_case_rate<- plot_ly(countries_all, x = ~Date_confirmation, y = ~da
 country_daily_case_rate
 
 # export all countries case files 
-write.csv(countries_all, "C:\\Users\\Cindy Pang\\monkeypox-mapped\\exported data\\mpx_country_case_dat")
+write.csv(countries_all, "C:\\Users\\Cindy Pang\\monkeypox-mapped\\exported data\\mpx_country_case_dat.csv")
