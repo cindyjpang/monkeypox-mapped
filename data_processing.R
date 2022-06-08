@@ -9,7 +9,7 @@ library(zoo)
 library(httr)
 gh_data <- read.csv(text=content(GET("https://raw.githubusercontent.com/globaldothealth/monkeypox/main/latest.csv")))
 
-countries_sf <- read_sf("C:\\Users\\Cindy Pang\\monkeypox-mapped\\countries sf\\World_Countries__Generalized_.shp")
+
 world_pop <- read.csv("world_pop_2022.csv")%>%
   select(name, pop2022)
 #world_pop$pop2022 <- as.numeric(world_pop$pop2022)
@@ -51,9 +51,6 @@ countries_all <- rbind(country_confirmed_case_dat, uk_confirmed_case_dat, world_
   merge(world_pop, by.x = "Country", by.y = "name", all = FALSE)%>%
   mutate(daily_per_1M = (confirmed/pop2022)*1000000,
          cumulative_per_1M = (cumulative_confirmed/pop2022)*1000000)
-  
-  
-
 
 
 # view by country plot
