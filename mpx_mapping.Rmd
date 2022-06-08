@@ -18,6 +18,7 @@ library(stats)
 library(zoo)
 library(knitr)
 library(rmarkdown)
+library(rsconnect)
 
 
 today <- Sys.Date()
