@@ -5,9 +5,9 @@ account: cindypang
 server: shinyapps.io
 hostUrl: https://api.shinyapps.io/v1
 appId: 6441612
-bundleId: 5987831
+bundleId: 5994930
 url: https://cindypang.shinyapps.io/mpx_mapping/
-when: 1654660772.72722
-lastSyncTime: 1654660772.72722
+when: 1654835091.68028
+lastSyncTime: 1654835091.68028
 asMultiple: FALSE
 asStatic: FALSE
