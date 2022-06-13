@@ -39,20 +39,69 @@ This is a website for up-to-date reported cases and mapping of monkeypox globall
 
 Website data is pulled from [Globe.Health](https://github.com/globaldothealth/monkeypox)
 
-This site is maintained by data janitorial enthusiast, Cindy J. Pang, who is also a rising Senior at the University of North Carolina at Chapel Hill, Gillings School of Chapel Hill studying Biostatistics and Mathematics. 
+This site is maintained by data janitorial enthusiast, Cindy J. Pang, who is also a rising Senior at the University of North Carolina at Chapel Hill, Gillings School of Chapel Hill studying Biostatistics and Mathematics. If you have any questions or comments on this visualization, please feel free to reach out to me at pangcind@live.unc.edu
 
-## Cumulative Cases Table 
+## Results {.tabset}
+### Cumulative Global Summary 
 
-Data updated 
+```{r, echo=FALSE}
+
+  ui = fluidPage(
+    radioButtons("cum_choice", 
+                 label = "",
+                 choices = list("Cumulative" = 1, "Cumulative_per_Million" = 2),
+                 selected = 1)
+    # plotlyOutput("cumPlot")
+  )
+
+  server = function(input, output) {
+  
+
+  #   output$countryPlot = renderPlotly({
+  #     if(input$cum_choice == 1){
+  #       country_cumulative <- plot_ly(mpx_country_case_dat, x = ~Date_confirmation, y = ~cumulative_confirmed, type = 'scatter',mode = "lines", color = ~Country, width = 1000, height = 700)%>%
+  # layout(xaxis = list(title = 'Date Confirmed'), yaxis = list(title = 'Cumulative Cases Overall'))
+  #       
+  #       country_cumulative
+  #     }else{
+  #       country_cum_case_rate<- plot_ly(mpx_country_case_dat, x = ~Date_confirmation, y = ~cumulative_per_1M, type = 'scatter',mode = "lines", color = ~Country, width = 1000, height = 700)%>%
+  # layout(xaxis = list(title = 'Date Confirmed'), yaxis = list(title = 'Cumulative Cases per 1M'))
+  #       
+  #       country_cum_case_rate
+    #   }
+    # }
+    # )
+  }
+
+  #options = list(height = 500)
+#shinyApp(ui, server, options = list(height = 1000))
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Data updated
 ```{r world table, echo=FALSE}
 kable(world_summary_tbl, caption = "World Cumulative Cases Summary Table")
 
 ```
 
 
-## Cumulative Cases Globally, Trendlines
 Here's we are as of `r today`
 ```{r prepare plots, include=FALSE}
+
+
 country_cumulative <- plot_ly(mpx_country_case_dat, x = ~Date_confirmation, y = ~cumulative_confirmed, type = 'scatter',mode = "lines", color = ~Country, width = 1000, height = 700)%>%
   layout(xaxis = list(title = 'Date Confirmed'), yaxis = list(title = 'Cumulative Cases Overall'))
 
@@ -65,16 +114,15 @@ country_cum_case_rate<- plot_ly(mpx_country_case_dat, x = ~Date_confirmation, y 
 ``` {r cumulative plots, message = FALSE, warning = FALSE, echo = FALSE}
 subplot(country_cumulative, country_cum_case_rate, nrows = 2, titleY = TRUE, titleX = TRUE, shareX = TRUE, margin = 0.1)%>% layout(autosize = TRUE)
 ```
-# Daily Confirmed Cases
+### Daily Confirmed Cases, by Country {.active}
 
 
 ```{r, echo=FALSE}
-shinyApp(
 
   ui = fluidPage(
     selectInput("user_country", label = "Country:", choices = countries, selected = "World"),
     plotlyOutput("countryPlot")
-  ),
+  )
 
   server = function(input, output) {
   
@@ -88,8 +136,8 @@ shinyApp(
       plot_ly(country_daily(), x = ~Date_confirmation,y=~confirmed, type = 'bar',mode = "lines")%>%
   add_trace(y = ~case_03d, type = 'scatter', mode = "lines")
     )
-  },
+  }
 
   #options = list(height = 500)
-)
+shinyApp(ui, server, options = list(height = 1000))
 ```
