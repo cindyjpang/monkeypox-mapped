@@ -1,0 +1,41 @@
+---
+title: "Monkeypox Data Test"
+author: "Cindy J. Pang"
+date: "`r Sys.Date()`"
+output: 
+  html_document:
+    toc: true
+    toc_float: true
+
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(dplyr)
+library(readr)
+library(tidyr)
+library(ggplot2)
+library(plotly)
+library(leaflet)
+
+# import data 
+
+mpx_country_case_dat_v2 <- read_csv("exported data/mpx_country_case_dat_v2.csv")
+```
+
+## Cumulative Case Counts 
+
+
+```{r cars}
+
+```
+
+## Including Plots
+
+You can also embed plots, for example:
+
+```{r pressure, echo=FALSE}
+plot(pressure)
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
