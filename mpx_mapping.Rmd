@@ -42,7 +42,7 @@ mpx_global_map <- merge(world_shp,
 
 ```
 
-Row {data-heighth=650, .tabset}
+Row {data-heighth=800, .tabset}
 -----------------------------------------------------------------------
 
 ### Cumulative Confirmed Cases
