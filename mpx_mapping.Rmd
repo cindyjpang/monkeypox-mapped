@@ -1,10 +1,17 @@
 ---
 title: "Monkeypox World Dashboard"
-output: 
+output:
   flexdashboard::flex_dashboard:
     orientation: rows
     vertical_layout: scroll
   runtime: shiny
+resource_files:
+- countries sf/World_Countries__Generalized_.shp
+- countries sf/World_Countries_(Generalized).xml
+- countries sf/World_Countries__Generalized_.cpg
+- countries sf/World_Countries__Generalized_.dbf
+- countries sf/World_Countries__Generalized_.prj
+- countries sf/World_Countries__Generalized_.shx
 ---
 
 ```{r setup, include=FALSE}
@@ -26,7 +33,7 @@ mpx_gbl_hospitalizations <- read_csv("exported data/mpx_gbl_hospitalizations.csv
 
 ```{r map processing, include=FALSE}
 # import shapefile
-world_shp <- sf::st_read("C:\\Users\\Cindy Pang\\monkeypox-mapped\\countries sf\\World_Countries__Generalized_.shp")
+world_shp <- sf::st_read("countries sf/World_Countries__Generalized_.shp")
 
 # sort country case date to latest 
 mpx_global_latest <- mpx_country_case_dat_v2 %>%

@@ -75,6 +75,7 @@ hospitalizations <- gh_data %>%
 
 
 
+
 # export all countries case files 
 write.csv(countries_all, "C:\\Users\\Cindy Pang\\monkeypox-mapped\\exported data\\mpx_country_case_dat_v2.csv")
 write.csv(hospitalizations, "C:\\Users\\Cindy Pang\\monkeypox-mapped\\exported data\\mpx_gbl_hospitalizations.csv")
