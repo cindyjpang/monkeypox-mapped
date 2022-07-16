@@ -3,7 +3,8 @@ title: "Monkeypox World Dashboard"
 output: 
   flexdashboard::flex_dashboard:
     orientation: rows
-    vertical_layout: fill
+    vertical_layout: scroll
+  runtime: shiny
 ---
 
 ```{r setup, include=FALSE}
@@ -16,7 +17,7 @@ library(plotly)
 library(tmap)
 library(sf)
 library(leaflet)
-
+library(rsconnect)
 mpx_country_case_dat_v2 <- read_csv("exported data/mpx_country_case_dat_v2.csv")
 mpx_gbl_hospitalizations <- read_csv("exported data/mpx_gbl_hospitalizations.csv")
 ```
@@ -25,7 +26,7 @@ mpx_gbl_hospitalizations <- read_csv("exported data/mpx_gbl_hospitalizations.csv
 
 ```{r map processing, include=FALSE}
 # import shapefile
-world_shp <- st_read("C:\\Users\\Cindy Pang\\monkeypox-mapped\\countries sf\\World_Countries__Generalized_.shp")
+world_shp <- sf::st_read("C:\\Users\\Cindy Pang\\monkeypox-mapped\\countries sf\\World_Countries__Generalized_.shp")
 
 # sort country case date to latest 
 mpx_global_latest <- mpx_country_case_dat_v2 %>%
@@ -42,84 +43,99 @@ mpx_global_map <- merge(world_shp,
 
 ```
 
-Row {data-heighth=800, .tabset}
+
+```{r value boxes, include=FALSE}
+mpx_world <- mpx_country_case_dat_v2 %>%
+  filter(Date_confirmation == max(Date_confirmation), Country == "World")
+today_cumulative_confirmed = mpx_world$cumulative_confirmed[1]
+today_cumulative_suspected = mpx_world$cumulative_suspected[1]
+today_cumulative_confirmed_suspected = mpx_world$cumulative_confirmed_suspected[1]
+
+```
+Row 
+---------------------------------------------------------------------------------------------
+
+### Cumulative Confirmed Cases
+```{r}
+valueBox(today_cumulative_confirmed)
+```
+
+### Cumulative Suspected Cases
+```{r}
+valueBox(today_cumulative_suspected)
+```
+
+### Cumulative Confirmed and Suspected Cases
+```{r}
+valueBox(today_cumulative_confirmed_suspected)
+```
+
+
+Row { .tabset}
 -----------------------------------------------------------------------
 
 ### Cumulative Confirmed Cases
 
 ```{r}
-# tm_shape(mpx_global_map)+
-#   tm_polygons("cumulative_confirmed_suspected")
+tmap_mode("view")
+map1 <- tm_shape(mpx_global_map)+
+  tm_polygons(col = "cumulative_confirmed")
 
-
-# fig <- plot_geo(mpx_global_map)
-# fig
-
-bins <- c(0, 10, 20, 50, 100, 200, 500, 1000, Inf)
-pal <- colorBin("YlOrRd", domain = mpx_global_map$cumulative_confirmed, bins = bins)
-m <- leaflet(mpx_global_map)%>%
-   addProviderTiles("MapBox", options = providerTileOptions(
-    id = "mapbox.light",
-    accessToken = Sys.getenv('MAPBOX_ACCESS_TOKEN')))%>%
-  addPolygons(
-    fillColor = ~pal(cumulative_confirmed),
-  weight = 2,
-  opacity = 1,
-  color = "black",
-  fillOpacity = 0.7
-  )%>%
-  addLegend(pal = pal, values = ~cumulative_confirmed, opacity = 0.7, title = NULL,
-  position = "bottomright")
-
-
-m
+map1
 ```
 
-### Cumulative Cases & Suspected 
+### Cumulative Cases & Suspected
+
 ```{r}
 
-pal <- colorBin("YlGnBu", domain = mpx_global_map$cumulative_confirmed_suspected, bins = bins)
-m <- leaflet(mpx_global_map)%>%
-   addProviderTiles("MapBox", options = providerTileOptions(
-    id = "mapbox.light",
-    accessToken = Sys.getenv('MAPBOX_ACCESS_TOKEN')))%>%
-  addPolygons(
-    fillColor = ~pal(cumulative_confirmed_suspected),
-  weight = 2,
-  opacity = 1,
-  color = "black",
-  fillOpacity = 0.7
-  )%>%
-  addLegend(pal = pal, values = ~cumulative_confirmed_suspected, opacity = 0.7, title = NULL,
-  position = "bottomright")
-
-m
+tmap_mode("view")
+tm_shape(mpx_global_map)+
+  tm_polygons(col = "cumulative_confirmed_suspected")
+```
 
 
+### Cumulative Confirmed per Million
+
+```{r}
+tmap_mode("view")
+tm_shape(mpx_global_map)+
+  tm_polygons(col = "cumulative_confirmed_per_1M")
+```
+
+
+### Cumulative Confirmed & Suspected per Million
+```{r}
+tmap_mode("view")
+tm_shape(mpx_global_map)+
+  tm_polygons(col = "cumulative_confirmed_suspected_per_1M")
 ```
 
 
 
-### Cumulative Confirmed per Million 
-
-
-
-
-### Cumulative Confirmed & Suspected per Million 
-
-
-Row {data-height=350}
+Row {.tabset}
 -----------------------------------------------------------------------
 
-### Cumulative Case Trend
-
-```{r}
-
+```{r filter all world data timeseries, include=FALSE}
+mpx_world_ts <- mpx_country_case_dat_v2 %>%
+  filter(Country == "World")
 ```
 
-### Chart C
+
+### Cumulative Case Trend
+```{r}
+plot_ly(mpx_world_ts, x = ~Date_confirmation, y = ~cumulative_confirmed, type = "scatter", mode = "lines", name = 'Cumulative Confirmed') %>%
+  add_trace(y = ~cumulative_suspected, mode = 'lines', name = 'Cumulative Suspected')%>%
+  add_trace(y = ~cumulative_confirmed_suspected, mode = "lines", name = "Cummulative Confirmed and Suspected")%>%
+  layout(xaxis = list(title = "Date"), yaxis = list(title = "Cumulative Count"))
+```
+
+### World Daily Trend
 
 ```{r}
-
+plot_ly(mpx_world_ts, x = ~Date_confirmation, y = ~confirmed, type = 'bar', name = 'Confirmed')%>%
+  add_trace(y = ~suspected, name = 'Suspected')%>%
+  layout(xaxis = list(title = 'Date'), yaxis = list(title = 'Daily Count'), barmode = 'stack')%>%
+  add_trace(y = ~daily_confirmed_suspected_07d, type = "scatter", mode = 'lines', name = "7-day Rolling Average: Confirmed + Suspected")%>%
+  add_trace(y = ~daily_confirmed_07d, type = "scatter", mode = 'lines', name = "7-day Rolling Average: Confirmed, only")
 ```
 

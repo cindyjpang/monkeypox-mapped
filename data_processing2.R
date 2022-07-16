@@ -24,7 +24,8 @@ country_confirmed_case_dat <- gh_data %>%
          Date_confirmation = ifelse(Status == "suspected", Date_entry, Date_confirmation))%>%
   filter(Status == "confirmed" | Status == "suspected")%>%
   dplyr::count(Status, Date_confirmation, Country)%>%
-  spread(Status, n)
+  spread(Status, n)%>%
+  mutate(Date_confirmation = as.Date(Date_confirmation))
 
 # aggregate all of the world data
 world_confirmed_case_dat <- country_confirmed_case_dat %>%
@@ -68,6 +69,10 @@ hospitalizations <- gh_data %>%
   dplyr::count(Hospitalised..Y.N.NA., Date_hospitalisation, Country)%>%
   filter(Hospitalised..Y.N.NA. == "Y")%>%
   mutate(cumulative_hospitalizations = ave(n, Country, FUN = cumsum))
+
+
+
+
 
 
 # export all countries case files 
