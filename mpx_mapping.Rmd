@@ -49,7 +49,8 @@ mpx_global_map <- merge(world_shp,
 
 
 ```
-
+World Data
+===========================================================================================
 
 ```{r value boxes, include=FALSE}
 mpx_world <- mpx_country_case_dat_v2 %>%
@@ -146,3 +147,41 @@ plot_ly(mpx_world_ts, x = ~Date_confirmation, y = ~confirmed, type = 'bar', name
   add_trace(y = ~daily_confirmed_07d, type = "scatter", mode = 'lines', name = "7-day Rolling Average: Confirmed, only")
 ```
 
+
+United States
+===========================================================================================
+```{r us-setup, include=FALSE}
+# map state trends, get state map
+# mpx_us_state_case_dat <- read_csv("exported data/mpx_us_state_case_dat.csv")
+# us_state_shp <- st_read("us-states-sf/cb_2021_us_state_500k.shp")%>%
+#   filter(NAME != "American Samoa" & NAME != "Commonwealth of the Northern Mariana Islands" & NAME != "Guam" & NAME != "United States Virgin Islands" & NAME != "Puerto Rico")
+# # select states to map - state daily, state cumulatives --> drop down menu 
+# us_mpx_map <- merge(us_state_shp, 
+#                     mpx_us_state_case_dat, 
+#                     by.x = "NAME", 
+#                     by.y = "state", 
+#                     all = TRUE)
+```
+
+# U.S. Map
+
+
+
+
+
+About
+======================================================================================
+#### Site Maintenance 
+  This site aims to be updated daily. However, sometimes there will be lags (i.e. site owner not available). I am trying to figure out how to automate updating the site. There may also be lags in time (i.e. Site updated on 7/16/2021 may not yet contain 7/16/2021 data). Additionally, each country may update their data at various times. 
+  
+#### Data Sources
+- Confirmed and Suspected Cases (Global and U.S.): [Global.health](https://github.com/globaldothealth/monkeypox)
+- World Countries Shapefile: [ArcGis Hub](https://hub.arcgis.com/datasets/esri::world-countries-generalized/about)
+- World Population Counts: [World Population Review](https://worldpopulationreview.com/countries)
+- U.S. Cities and County Crosswalk: [https://simplemaps.com/data/us-cities](https://simplemaps.com/data/us-cities)
+
+#### About Me
+  Cindy Pang currently maintains this site. She is a fourth-year bachelors student studying Biostatistics and Mathematics at the University of North Carolina at Chapel Hill. She also works at the [Carolina Population Center](https://www.cpc.unc.edu/) as an Undergraduate Research Assistant in the Delamater Lab where her work has focused on modeling the impact of disease and vaccination-induced herd immunity on SARS-CoV-2 infections across counties in the state of North Carolina, U.S.A. Cindy's broader research interests are in Spatial Epidemiology and Causal Inference for Infectious Diseases. 
+  
+#### Contact 
+Email: [pangcind@live.unc.edu](pangcind@live.unc.edu)
