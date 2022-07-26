@@ -42,7 +42,7 @@ countries_all <-  rbind(country_confirmed_case_dat, world_confirmed_case_dat) %>
   mutate(confirmed = replace_na(confirmed, 0),
          suspected =replace_na(suspected, 0),
           cumulative_confirmed = ave(confirmed, Country, FUN = cumsum),
-         cumulative_suspecte= ave(suspected, Country, FUN = cumsum))
+         cumulative_suspected= ave(suspected, Country, FUN = cumsum))
 
 countries_all$confirmed_suspected <- rowSums(countries_all[, c("confirmed", "suspected")])
 countries_all$cumulative_confirmed_suspected <- ave(countries_all$confirmed_suspected, countries_all$Country, FUN = cumsum)

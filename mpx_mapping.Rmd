@@ -25,6 +25,7 @@ library(tmap)
 library(sf)
 library(leaflet)
 library(rsconnect)
+library(shiny)
 mpx_country_case_dat_v2 <- read_csv("exported data/mpx_country_case_dat_v2.csv")
 mpx_gbl_hospitalizations <- read_csv("exported data/mpx_gbl_hospitalizations.csv")
 ```
@@ -152,22 +153,74 @@ United States
 ===========================================================================================
 ```{r us-setup, include=FALSE}
 # map state trends, get state map
-# mpx_us_state_case_dat <- read_csv("exported data/mpx_us_state_case_dat.csv")
-# us_state_shp <- st_read("us-states-sf/cb_2021_us_state_500k.shp")%>%
-#   filter(NAME != "American Samoa" & NAME != "Commonwealth of the Northern Mariana Islands" & NAME != "Guam" & NAME != "United States Virgin Islands" & NAME != "Puerto Rico")
+mpx_us_state_case_dat <- read_csv("exported data/mpx_us_state_case_dat.csv")
+us_state_shp <- st_read("us-states-sf/cb_2021_us_state_500k.shp")
+
 # # select states to map - state daily, state cumulatives --> drop down menu 
-# us_mpx_map <- merge(us_state_shp, 
-#                     mpx_us_state_case_dat, 
-#                     by.x = "NAME", 
-#                     by.y = "state", 
-#                     all = TRUE)
+us_mpx_map <- merge(us_state_shp,
+                    mpx_us_state_case_dat,
+                    by.x = "NAME",
+                    by.y = "state",
+                    all = FALSE)
+
+us_latest_map <- us_mpx_map %>%
+  group_by(NAME)%>%
+  filter(Date_confirmation == max(Date_confirmation))
+
+
+us_mpx_time_series <- mpx_us_state_case_dat %>%
+  drop_na()
+  
+  
 ```
 
-# U.S. Map
+Row {.tabset}
+----------------------------------------------------------------------------------
+### Cumulative Counts
+```{r}
+tmap_mode("view")
+tm_shape(us_latest_map)+
+  tm_polygons(col = "cumulative_confirmed")
+
+```
+
+### Cumulative per Million
+```{r}
+tmap_mode("view")
+tm_shape(us_latest_map)+
+  tm_polygons(col = "cumulative_confirmed_per_1M")
+
+```
+
+
+Row 
+-------------------------------------------------------------------
+### State Trends 
+
+```{r}
+selectInput("choice", "State", choices = unique(us_mpx_time_series$state))
+
+renderPlotly({
+  us_mpx_time_series %>%
+    filter(state == as.character(input$choice)) %>%
+    plot_ly(x = ~Date_confirmation, y = ~confirmed, type = "bar") %>%
+    add_trace(y = ~state_07d, type = "scatter", mode = "lines", "7 day rolling average")
+})
+
+renderPlotly({
+  us_mpx_time_series %>%
+    filter(state == as.character(input$choice)) %>%
+    plot_ly(x = ~Date_confirmation, y = ~cumulative_confirmed, type = "scatter", mode = "lines") 
+})
+
+
+```
 
 
 
 
+Row 
+-----------------------------------------------
 
 About
 ======================================================================================
