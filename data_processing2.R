@@ -8,6 +8,7 @@ library(stats)
 library(zoo)
 library(httr)
 library(readxl)
+
 gh_data <- read.csv(text=content(GET("https://raw.githubusercontent.com/globaldothealth/monkeypox/main/latest.csv")))
 us_state_pop <- read_excel("NST-EST2021-POP.xlsx", sheet = "US-STATE-EST2021-POP")%>%
   mutate(state = gsub('\\.', '', state)) # import census population data (2021 estimates, US Census 2020)
@@ -32,15 +33,15 @@ country_confirmed_case_dat <- gh_data %>%
 # aggregate all of the world data
 world_confirmed_case_dat <- country_confirmed_case_dat %>%
   group_by(Date_confirmation)%>%
-  summarize(confirmed = sum(confirmed, na.rm = TRUE), 
+  summarise(confirmed = sum(confirmed, na.rm = TRUE), 
             suspected = sum(suspected, na.rm = TRUE))%>%
-  mutate(Country = "World")%>%
-  relocate(Country, .after = Date_confirmation)
+   mutate(Country = "World")%>%
+   relocate(Country, .after = Date_confirmation)
 
 countries_all <-  rbind(country_confirmed_case_dat, world_confirmed_case_dat) %>%
   group_by(Country)%>%
   mutate(confirmed = replace_na(confirmed, 0),
-         suspected =replace_na(suspected, 0),
+         suspected = replace_na(suspected, 0),
           cumulative_confirmed = ave(confirmed, Country, FUN = cumsum),
          cumulative_suspected= ave(suspected, Country, FUN = cumsum))
 
@@ -97,8 +98,9 @@ us_mpx_state_count <- us_mpx %>%
   dplyr::count(Status, Date_confirmation, state)%>%
   spread(Status, n)%>%
   mutate(Date_confirmation = as.Date(Date_confirmation),
-         cumulative_confirmed = ave(confirmed, state, FUN = cumsum),
-         state_07d = rollmean(confirmed, k = 7, fill = NA, align = 'center'))
+         cumulative_confirmed = ave(confirmed, state, FUN = cumsum))%>%
+  group_by(state)%>%
+  mutate(state_07d = rollmean(confirmed, k = 7, fill = NA, align = 'center'))
 us_mpx_state <- merge(us_mpx_state_count, 
                       us_state_pop, 
                       by = "state",

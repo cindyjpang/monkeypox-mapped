@@ -2,6 +2,7 @@
 title: "Monkeypox World Dashboard"
 output:
   flexdashboard::flex_dashboard:
+    theme: yeti
     orientation: rows
     vertical_layout: scroll
   runtime: shiny
@@ -12,6 +13,12 @@ resource_files:
 - countries sf/World_Countries__Generalized_.dbf
 - countries sf/World_Countries__Generalized_.prj
 - countries sf/World_Countries__Generalized_.shx
+- "us-states-sf/cb_2021_us_state_500k.cpg"
+- "us-states-sf/cb_2021_us_state_500k.dbf"
+- "us-states-sf/cb_2021_us_state_500k.prj"
+- "us-states-sf/cb_2021_us_state_500k.shp.ea.iso.xml"
+- "us-states-sf/cb_2021_us_state_500k.shp.iso.xml"
+- "us-states-sf/cb_2021_us_state_500k.shx"
 ---
 
 ```{r setup, include=FALSE}
@@ -26,6 +33,7 @@ library(sf)
 library(leaflet)
 library(rsconnect)
 library(shiny)
+
 mpx_country_case_dat_v2 <- read_csv("exported data/mpx_country_case_dat_v2.csv")
 mpx_gbl_hospitalizations <- read_csv("exported data/mpx_gbl_hospitalizations.csv")
 ```
@@ -61,8 +69,13 @@ today_cumulative_suspected = mpx_world$cumulative_suspected[1]
 today_cumulative_confirmed_suspected = mpx_world$cumulative_confirmed_suspected[1]
 
 ```
+
+World data pulled from [Global.health](https://github.com/globaldothealth/monkeypox) `r Sys.Date()`.
+Note that all map data and aggregated cumulative count data (including the widgets to the right) are based on data on the last recorded date in each country. For these dates, please refer to the World Data Table towards the bottom of the page. 
+
 Row 
 ---------------------------------------------------------------------------------------------
+
 
 ### Cumulative Confirmed Cases
 ```{r}
@@ -80,46 +93,46 @@ valueBox(today_cumulative_confirmed_suspected)
 ```
 
 
-Row { .tabset}
+Row 
 -----------------------------------------------------------------------
 
-### Cumulative Confirmed Cases
-
+### World Map
 ```{r}
-tmap_mode("view")
-map1 <- tm_shape(mpx_global_map)+
-  tm_polygons(col = "cumulative_confirmed")
-
-map1
-```
-
-### Cumulative Cases & Suspected
-
-```{r}
-
-tmap_mode("view")
+shinyApp(
+  ui = fluidPage(
+    selectInput("world_choice", "Choose a map to display:", choices = c ("Cumulative Confirmed Cases", "Cumulative Confirmed and Suspected Cases", "Cumulative Confirmed Cases per Million", "Cumulative Confirmed and Suspected Cases per Million"), selected = "Cumulative Confirmed Cases"), 
+    tmapOutput("user_world_map")
+      
+      
+  ),
+  
+  
+  server = function(input, output) {
+    output$user_world_map<- renderTmap({
+        if(input$world_choice == "Cumulative Confirmed Cases"){
+          tmap_mode("view")
+          tm_shape(mpx_global_map)+
+            tm_polygons(col = "cumulative_confirmed")
+        } else if(input$world_choice == "Cumulative Confirmed and Suspected Cases"){
+          tmap_mode("view")
 tm_shape(mpx_global_map)+
   tm_polygons(col = "cumulative_confirmed_suspected")
-```
-
-
-### Cumulative Confirmed per Million
-
-```{r}
-tmap_mode("view")
+        } else if(input$world_choice == "Cumulative Confirmed and Suspected Cases"){
+          tmap_mode("view")
 tm_shape(mpx_global_map)+
   tm_polygons(col = "cumulative_confirmed_per_1M")
-```
-
-
-### Cumulative Confirmed & Suspected per Million
-```{r}
-tmap_mode("view")
+        }else{
+          tmap_mode("view")
 tm_shape(mpx_global_map)+
   tm_polygons(col = "cumulative_confirmed_suspected_per_1M")
+        }
+    })
+  },
+  options = list(height = 600)
+)
+
+
 ```
-
-
 
 Row {.tabset}
 -----------------------------------------------------------------------
@@ -149,11 +162,28 @@ plot_ly(mpx_world_ts, x = ~Date_confirmation, y = ~confirmed, type = 'bar', name
 ```
 
 
+Row 
+-------------------------------
+### World Data Table
+```{r, include = FALSE}
+# filter & arrange by highest cumulative cases 
+mpx_dt <- mpx_global_latest %>%
+  arrange(-cumulative_confirmed)
+
+```
+
+```{r display table}
+knitr::kable(mpx_dt, digits = 2, col.names = c("Country", "Date Last Recorded", "Cumulative Confirmed", "Cumulative Confirmed and Suspected", "Cumulative Confirmed per Million", "Cumulative Confirmed and Suspected per Million"))
+
+```
+
+
 United States
 ===========================================================================================
 ```{r us-setup, include=FALSE}
 # map state trends, get state map
-mpx_us_state_case_dat <- read_csv("exported data/mpx_us_state_case_dat.csv")
+mpx_us_state_case_dat <- read_csv("exported data/mpx_us_state_case_dat.csv") %>%
+  arrange(state, Date_confirmation)
 us_state_shp <- st_read("us-states-sf/cb_2021_us_state_500k.shp")
 
 # # select states to map - state daily, state cumulatives --> drop down menu 
@@ -168,9 +198,9 @@ us_latest_map <- us_mpx_map %>%
   filter(Date_confirmation == max(Date_confirmation))
 
 
-us_mpx_time_series <- mpx_us_state_case_dat %>%
-  drop_na()
-  
+# us_mpx_time_series <- mpx_us_state_case_dat %>%
+#   drop_na()
+#   
   
 ```
 
@@ -198,29 +228,31 @@ Row
 ### State Trends 
 
 ```{r}
-selectInput("choice", "State", choices = unique(us_mpx_time_series$state))
 
-renderPlotly({
-  us_mpx_time_series %>%
-    filter(state == as.character(input$choice)) %>%
-    plot_ly(x = ~Date_confirmation, y = ~confirmed, type = "bar") %>%
+#### copy 
+shinyApp(
+  ui = fluidPage(
+      selectInput("choice", "State", choices = unique(mpx_us_state_case_dat$state)), 
+    plotlyOutput("ts_daily")
+      
+      
+  ),
+  server = function(input, output) {
+    output$ts_daily<-renderPlotly({
+        state_tbl <- mpx_us_state_case_dat %>%
+          filter(state == as.character(input$choice)) %>%
+          arrange(Date_confirmation)
+    
+    plot_ly(state_tbl,x = ~Date_confirmation, y = ~confirmed, type = "bar") %>%
     add_trace(y = ~state_07d, type = "scatter", mode = "lines", "7 day rolling average")
-})
-
-renderPlotly({
-  us_mpx_time_series %>%
-    filter(state == as.character(input$choice)) %>%
-    plot_ly(x = ~Date_confirmation, y = ~cumulative_confirmed, type = "scatter", mode = "lines") 
-})
-
-
+      
+    })
+  },
+  options = list(height = 600)
+)
 ```
 
 
-
-
-Row 
------------------------------------------------
 
 About
 ======================================================================================
