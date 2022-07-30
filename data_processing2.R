@@ -101,6 +101,7 @@ us_mpx_state_count <- us_mpx %>%
          cumulative_confirmed = ave(confirmed, state, FUN = cumsum))%>%
   group_by(state)%>%
   mutate(state_07d = rollmean(confirmed, k = 7, fill = NA, align = 'center'))
+
 us_mpx_state <- merge(us_mpx_state_count, 
                       us_state_pop, 
                       by = "state",
