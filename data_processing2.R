@@ -40,6 +40,7 @@ world_confirmed_case_dat <- country_confirmed_case_dat %>%
 
 countries_all <-  rbind(country_confirmed_case_dat, world_confirmed_case_dat) %>%
   group_by(Country)%>%
+  arrange(Date_confirmation)%>%
   mutate(confirmed = replace_na(confirmed, 0),
          suspected = replace_na(suspected, 0),
           cumulative_confirmed = ave(confirmed, Country, FUN = cumsum),
@@ -53,6 +54,8 @@ countries_all <- merge(countries_all,
                        by.x = "Country",
                        by.y = "name",
                        all = FALSE)%>%
+  group_by(Country)%>%
+  arrange(Country,Date_confirmation)%>%
   mutate(daily_confirmed_per_1M = round((confirmed/pop2022)*1000000, digits = 2),
          daily_suspected_per_1M = round((suspected/pop2022)*1000000, digits = 2),
          daily_confirmed_suspected_per_1M = round((confirmed_suspected/pop2022)*1000000, digits = 2),
@@ -75,6 +78,8 @@ hospitalizations <- gh_data %>%
 
 
 ############################################## US Data 
+
+## FIX NEBRASKA ***
 # us.cities.name = uscities_county$city
 # us.counties.name = uscities_county$county_name
 
