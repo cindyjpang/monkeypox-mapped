@@ -70,7 +70,7 @@ today_cumulative_confirmed_suspected = mpx_world$cumulative_confirmed_suspected[
 
 ```
 
-World data pulled from [Global.health](https://github.com/globaldothealth/monkeypox) `r Sys.Date()`.  
+World data pulled from [Global.health](https://github.com/globaldothealth/monkeypox) `r Sys.time()`.  
 Note that all map data and aggregated cumulative count data (including the widgets to the right) are based on data on the last recorded date in each country. For these dates, please refer to the World Data Table towards the bottom of the page.  
 
 
@@ -211,7 +211,7 @@ Row {.tabset}
 ```{r}
 tmap_mode("view")
 tm_shape(us_latest_map)+
-  tm_polygons(col = "cumulative_confirmed")
+  tm_polygons(col = "cumulative_confirmed", breaks = c(0, 50, 100, 200, 300, 400, Inf))
 
 ```
 
@@ -224,10 +224,11 @@ tm_shape(us_latest_map)+
 ```
 
 
-Row {data-height = 1000}
+Row
 -------------------------------------------------------------------
+### State Time Series
 ```{r}
-  ui = fillPage(
+  ui = fluidPage(
       selectInput("choice", "State", choices = unique(mpx_us_state_case_dat$state)), 
     plotlyOutput("ts_daily"),
     plotlyOutput("state_cumulative")
@@ -254,7 +255,8 @@ Row {data-height = 1000}
     })
   }
 
-shinyApp(ui, server1, options = list(height = 2000))
+  #options = list(height = 2000)
+shinyApp(ui, server1, options = list(height = 1000))
 ```
 
 
